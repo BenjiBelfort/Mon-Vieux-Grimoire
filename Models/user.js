@@ -6,7 +6,7 @@ const userSchema = mongoose.Schema({
   password: { type: String, required: true }
 });
 
-// Application du plugin uniqueValidator au schéma
+// mongoose-unique-validator, pour empecher la création de compte avec le même email
 userSchema.plugin(uniqueValidator);
 
 module.exports = mongoose.model('User', userSchema);

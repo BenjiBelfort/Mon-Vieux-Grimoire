@@ -1,7 +1,6 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../Models/user');
-const mongooseUniqueValidator = require('mongoose-unique-validator');
 
 // Inscription
 exports.signup = (req, res, next) => {
@@ -13,48 +12,42 @@ exports.signup = (req, res, next) => {
           password: hash
         });
         user.save()
-          .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
-          .catch(error => {
-            // Vérifiez si l'erreur est liée à la validation d'unicité
-            if (error.name === 'ValidationError') {
-              return res.status(400).json({ message: 'Cet email est déjà utilisé.' });
-            }
-            res.status(400).json({ error });
-          });
+                .then(() =>  res.status(201).json({ message:'Utilisateur créé !' }))
+                .catch(error => res.status(400).json({ error }));
         })
-    .catch(error => res.status(500).json({ error }));
+        .catch(error => res.status(500).json({ error }));
 };
 
 // Connexion
-exports.login = (req, res) => {
+exports.login = (req, res, next) => {
     console.log("Connexion requise:", req.body);
-    
-    const { email, password } = req.body;
-  
-    // Recherche de l'utilisateur par email
-    User.findOne({ email })
-      .then(user => {
-        if (!user) {
-          return res.status(401).json({ error: 'Utilisateur non trouvé !' });
-        }
-  
-        // Vérification du mot de passe
-        return bcrypt.compare(password, user.password)
-          .then(isPasswordValid => {
-            if (!isPasswordValid) {
-              return res.status(401).json({ error: 'Mot de passe incorrect !' });
+    User.findOne({email: req.body.email})
+        .then(user => {
+            if (user === null) {
+                res.status(401).json({message: 'Paire identifiant/mot de passe incorrecte'});
+            } else {
+                bcrypt.compare(req.body.password, user.password)
+                .then(valid => {
+                    if (!valid) {
+                        res.status(401).json({message: 'Paire identifiant/mot de passe incorrecte'});
+                    } else {
+                        res.status(200).json({
+                            userId: user._id,
+                            token: jwt.sign(
+                                { userId: user._id},
+                                'RANDOM_TOKEN_SECRET',
+                                { expiresIn: '24h'}
+                            )
+                        });
+                    }
+                })
+                .catch(error => {
+                    res.status(500).json( { error });
+                })
             }
-  
-            // Création du token JWT
-            const token = jwt.sign(
-              { userId: user._id },
-              'RANDOM_SECRET_KEY',
-              { expiresIn: '24h' }
-            );
-  
-            res.status(200).json({ userId: user._id, token });
-          });
-      })
-    .catch(error => res.status(500).json({ error: error.message }));
+        })
+        .catch(error => {
+            res.status(500).json( {error} );
+        })
 };
 

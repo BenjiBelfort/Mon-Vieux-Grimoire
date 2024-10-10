@@ -1,6 +1,9 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const path = require('path');
+
 const routeUser = require('./Routes/user')
+const routeBook = require('./Routes/book')
 
 mongoose.connect('mongodb+srv://benjaminbelfort:iitjigW7fMJsyiFc@cluster0.oun5a.mongodb.net/mydatabase?retryWrites=true&w=majority')
   .then(() => console.log('Connexion à MongoDB réussie !'))
@@ -20,5 +23,11 @@ app.use((req, res, next) => {
 
 // Configuration de la route d'authentification
 app.use('/api/auth', routeUser);
+
+// Configuration de la route des livres
+app.use('/api/books', routeBook);
+
+app.use('/images', express.static(path.join(__dirname, 'images')));
+
 
 module.exports = app;
