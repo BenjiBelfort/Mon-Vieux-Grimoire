@@ -88,8 +88,8 @@ exports.rateBook = (req, res, next) => {
     const bookId = req.params.id;
     const { userId, rating } = req.body;
 
-    if (!userId || typeof rating !== 'number' || rating < 1 || rating > 5) {
-        return res.status(400).json({ message: 'Note invalide. Elle doit être comprise entre 1 et 5.' });
+    if (!userId || typeof rating !== 'number' || rating < 0 || rating > 5) {
+        return res.status(400).json({ message: 'Note invalide. Elle doit être comprise entre 0 et 5.' });
     }
   
     Book.findById(bookId)
@@ -105,14 +105,14 @@ exports.rateBook = (req, res, next) => {
   
         book.ratings.push({ userId, grade: rating });
         const totalRating = book.ratings.reduce((sum, r) => sum + r.grade, 0);
-        book.averageRating = Math.round(totalRating / book.ratings.length);
+        book.averageRating = (totalRating / book.ratings.length).toFixed(1);
   
         book.save()
           .then(() => res.status(200).json(book))
           .catch(error => res.status(400).json({ error: 'Erreur lors de la sauvegarde' }));
       })
       .catch(error => res.status(400).json({ error: 'Erreur lors de la récupération du livre' }));
-  };
+};
   
   
   

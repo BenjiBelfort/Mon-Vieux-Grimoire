@@ -4,7 +4,7 @@ const User = require('../Models/user');
 
 // Inscription
 exports.signup = (req, res, next) => {
-    console.log("Inscription requise:", req.body);
+    // console.log("Inscription requise:", req.body);
     bcrypt.hash(req.body.password, 10)
       .then(hash => {
         const user = new User({
@@ -20,7 +20,7 @@ exports.signup = (req, res, next) => {
 
 // Connexion
 exports.login = (req, res, next) => {
-    console.log("Connexion requise:", req.body);
+    // console.log("Connexion requise:", req.body);
     User.findOne({email: req.body.email})
         .then(user => {
             if (user === null) {

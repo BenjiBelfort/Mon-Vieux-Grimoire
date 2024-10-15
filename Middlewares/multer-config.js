@@ -1,4 +1,7 @@
 const multer = require('multer');
+const sharp = require('sharp');
+const fs = require('fs');
+const path = require('path');
 
 const MIME_TYPES = {
     'image/jpg': 'jpg',
@@ -6,17 +9,34 @@ const MIME_TYPES = {
     'image/png': 'png'
 };
 
-const storage = multer.diskStorage({
-    destination: (req, file, callback) => {
-        callback(null, 'images');
-    },
-    filename: (req, file, callback) => {
-        const bookObject = JSON.parse(req.body.book);
-        const name = bookObject.title.split(' ').join('_'); // Utilise le titre du livre
-        // const name = file.originalname.split(' ').join('_');
-        const extension = MIME_TYPES[file.mimetype];
-        callback(null, name + Date.now() + '.' + extension);
-    }
-});
+const storage = multer.memoryStorage(); // On change en mémoire pour traiter l'image avec Sharp
 
-module.exports = multer({storage: storage}).single('image');
+const upload = multer({ storage: storage }).single('image');
+
+const resizeImageMiddleware = async (req, res, next) => {
+    if (!req.file) {
+        return next(); // Si aucun fichier n'est téléchargé, on passe au middleware suivant
+    }
+
+    try {
+        const bookObject = JSON.parse(req.body.book);
+        const name = bookObject.title.split(' ').join('_');
+        const extension = MIME_TYPES[req.file.mimetype];
+        const fileName = name + Date.now() + '.' + extension;
+        const outputPath = path.join('images', fileName);
+
+        // Utilisation de Sharp pour redimensionner l'image
+        await sharp(req.file.buffer)
+            .resize(400) // Redimensionne l'image à une largeur de 400px (la hauteur sera ajustée proportionnellement)
+            .toFile(outputPath); // Enregistre l'image redimensionnée dans le répertoire 'images'
+
+        req.file.filename = fileName; // On met à jour le nom du fichier dans req.file
+
+        next();
+    } catch (error) {
+        console.error("Erreur lors du traitement de l'image avec Sharp", error);
+        res.status(500).json({ message: "Erreur lors du traitement de l'image." });
+    }
+};
+
+module.exports = { upload, resizeImageMiddleware };
