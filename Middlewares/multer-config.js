@@ -31,7 +31,7 @@ const resizeImageMiddleware = async (req, res, next) => {
             .toFile(outputPath); // Enregistre l'image redimensionnée dans le répertoire 'images'
 
         req.file.filename = fileName; // On met à jour le nom du fichier dans req.file
-
+        console.log("image enregistrée !");
         next();
     } catch (error) {
         console.error("Erreur lors du traitement de l'image avec Sharp", error);

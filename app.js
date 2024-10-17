@@ -5,7 +5,7 @@ const path = require('path');
 const routeUser = require('./Routes/user')
 const routeBook = require('./Routes/book')
 
-mongoose.connect('mongodb+srv://benjaminbelfort:iitjigW7fMJsyiFc@cluster0.oun5a.mongodb.net/mydatabase?retryWrites=true&w=majority')
+mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('Connexion à MongoDB réussie !'))
   .catch((error) => console.log('Connexion à MongoDB échouée !', error));
   
