@@ -9,13 +9,14 @@ const MIME_TYPES = {
     'image/png': 'png'
 };
 
-const storage = multer.memoryStorage(); // On change en mémoire pour traiter l'image avec Sharp
+// mise en mémoire pour traiter l'image avec Sharp
+const storage = multer.memoryStorage();
 
 const upload = multer({ storage: storage }).single('image');
 
 const resizeImageMiddleware = async (req, res, next) => {
     if (!req.file) {
-        return next(); // Si aucun fichier n'est téléchargé, on passe au middleware suivant
+        return next();
     }
 
     try {
@@ -25,12 +26,13 @@ const resizeImageMiddleware = async (req, res, next) => {
         const fileName = name + Date.now() + '.' + extension;
         const outputPath = path.join('images', fileName);
 
-        // Utilisation de Sharp pour redimensionner l'image
+        // Application de Sharp pour redimensionner l'image
         await sharp(req.file.buffer)
-            .resize(400) // Redimensionne l'image à une largeur de 400px (la hauteur sera ajustée proportionnellement)
-            .toFile(outputPath); // Enregistre l'image redimensionnée dans le répertoire 'images'
+            .resize(400)
+            .toFile(outputPath);
 
-        req.file.filename = fileName; // On met à jour le nom du fichier dans req.file
+        // mise à jour du nom de fichier
+        req.file.filename = fileName;
         console.log("image enregistrée !");
         next();
     } catch (error) {

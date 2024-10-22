@@ -9,7 +9,6 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('Connexion à MongoDB réussie !'))
   .catch((error) => console.log('Connexion à MongoDB échouée !', error));
   
-
 const app = express();
 
 app.use(express.json());
@@ -21,13 +20,10 @@ app.use((req, res, next) => {
     next();
 });
 
-// Configuration de la route d'authentification
 app.use('/api/auth', routeUser);
 
-// Configuration de la route des livres
 app.use('/api/books', routeBook);
 
 app.use('/images', express.static(path.join(__dirname, 'images')));
-
 
 module.exports = app;

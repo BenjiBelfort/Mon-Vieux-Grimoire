@@ -2,17 +2,15 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../Models/user');
 
-// Charger les variables d'environnement
 require('dotenv').config();
 
+// déclaration des Regex
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-// Inscription
 exports.signup = (req, res, next) => {
     const { email, password } = req.body;
 
-    // Validation de l'email et du mot de passe
     if (!emailRegex.test(email)) {
         return res.status(400).json({ message: 'Adresse email invalide' });
     }
@@ -33,7 +31,6 @@ exports.signup = (req, res, next) => {
       .catch(error => res.status(500).json({ error }));
 };
 
-// Connexion
 exports.login = (req, res, next) => {
     const { email, password } = req.body;
 
@@ -53,7 +50,7 @@ exports.login = (req, res, next) => {
                         userId: user._id,
                         token: jwt.sign(
                             { userId: user._id },
-                            process.env.TOKEN_SECRET, // Utilisation de la variable d'environnement
+                            process.env.TOKEN_SECRET,
                             { expiresIn: '24h' }
                         )
                     });

@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 exports.createBook = (req, res, next) => {
-    console.log(req.body.book);
+    // console.log(req.body.book);
     const bookObject = JSON.parse(req.body.book);
     delete bookObject._id;
     delete bookObject._userId;
@@ -17,12 +17,6 @@ exports.createBook = (req, res, next) => {
     .then(() => { res.status(201).json({message: 'Livre enregistré !'})})
     .catch(error => res.status(400).json( { error } )); 
 };
-
-// exports.modifyBook = (req, res, next) => {
-//     Book.updateOne({ _id: req.params.id }, { ...req.body, _id: req.params.id })
-//         .then(book => res.status(200).json({ message: 'Livre modifié !' }))
-//         .catch(error => res.status(400).json( { error } ));
-// };
 
 exports.modifyBook = (req, res, next) => {
     const bookObject = req.file ? {
@@ -133,6 +127,3 @@ exports.rateBook = (req, res, next) => {
       })
       .catch(error => res.status(400).json({ error: 'Erreur lors de la récupération du livre' }));
 };
-  
-  
-  
